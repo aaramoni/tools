@@ -20,6 +20,7 @@ class AudioPreprocessor():
 
         self.signals = None
         self.spectrograms = None
+        self.original_min_max = None
 
         self.sample_rate = None
         self.signal_length = None
@@ -84,15 +85,26 @@ class AudioPreprocessor():
     def normalize(self):
         ''' Normalizes spectrograms to a maximum value of 1 and minimum of 0.'''
 
+        self.original_min_max = []
         norm_spectrogram_list = []
         for spectrogram in self.spectrograms:
-            norm_spectrogram = (spectrogram - spectrogram.min()) / (spectrogram.max() - spectrogram.min())
+            original_min = spectrogram.min()
+            original_max = spectrogram.max()
+            self.original_min_max.append([original_min,original_max])
+
+            norm_spectrogram = (spectrogram - original_min) / (original_max - original_min)
             norm_spectrogram_list.append(norm_spectrogram)
 
+        self.original_min_max = np.array(self.original_min_max)
         self.spectrograms = np.array(norm_spectrogram_list)
 
-    def save_data(self,path):
+    def save(self,path):
         ''' Saves signal and spectrogram arrays to designated path.'''
         os.mkdir(path)
-        np.save(os.path.join(path,'signals.npy'), self.signals)
-        np.save(os.path.join(path,'spectrograms.npy'), self.spectrograms)
+
+        if self.signals is not None:
+            np.save(os.path.join(path,'signals.npy'), self.signals)
+        if self.spectrograms is not None:
+            np.save(os.path.join(path,'spectrograms.npy'), self.spectrograms)
+        if self.original_min_max is not None:
+            np.save(os.path.join(path,'original_min_max.npy'), self.original_min_max)
