@@ -23,6 +23,7 @@ class AudioPreprocessor():
         self.original_min_max = None
 
         self.sample_rate = None
+        self.filenames = None
         self.signal_length = None
         self.frame_size = None
         self.hop_length = None
@@ -37,8 +38,8 @@ class AudioPreprocessor():
         '''
 
         self.sample_rate = sample_rate
-        self.signals = [librosa.load(os.path.join(path, file), sr=sample_rate)[0]
-                        for file in os.listdir(path) if not file.startswith('.')]
+        self.filenames = [file for file in os.listdir(path) if not file.startswith('.')]
+        self.signals = [librosa.load(os.path.join(path, file), sr=sample_rate)[0] for file in self.filenames]
 
     def pad(self,duration=.74):
         '''
